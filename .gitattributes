@@ -27,3 +27,5 @@
 
 # Jupyter notebook
 *.ipynb  text eol=lf
+
+flagged/

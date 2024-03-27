@@ -30,7 +30,7 @@ import tokenizers
 from llava.constants import IGNORE_INDEX, IMAGE_TOKEN_INDEX, DEFAULT_IMAGE_TOKEN, DEFAULT_IM_START_TOKEN, DEFAULT_IM_END_TOKEN
 from torch.utils.data import Dataset
 from llava.train.llava_trainer import LLaVATrainer
-
+from llava.model.language_model.llava_stablelm import LlavaStableLmForCausalLM, StableLmLlavaConfig
 from llava import conversation as conversation_lib
 from llava.model import *
 from llava.mm_utils import tokenizer_image_token
@@ -823,6 +823,15 @@ def train(attn_implementation=None):
                 cache_dir=training_args.cache_dir,
                 **bnb_model_from_pretrained_args
             )
+        elif 'stable' in model_args.model_name_or_path:
+            config = StableLmLlavaConfig.from_pretrained(model_args.model_name_or_path, trust_remote_code=True)
+            # config.attn_config['attn_impl'] = training_args.mpt_attn_impl               
+            model = LlavaStableLmForCausalLM.from_pretrained(
+                model_args.model_name_or_path,
+                config=config,
+                cache_dir=training_args.cache_dir,
+                **bnb_model_from_pretrained_args
+            )
         else:
             model = LlavaLlamaForCausalLM.from_pretrained(
                 model_args.model_name_or_path,
@@ -881,6 +890,15 @@ def train(attn_implementation=None):
             cache_dir=training_args.cache_dir,
             model_max_length=training_args.model_max_length,
             padding_side="right"
+        )
+    elif 'stable' in model_args.model_name_or_path:
+        tokenizer = transformers.AutoTokenizer.from_pretrained(
+            model_args.model_name_or_path,
+            cache_dir=training_args.cache_dir,
+            model_max_length=training_args.model_max_length,
+            padding_side="right",
+            use_fast=True,
+            trust_remote_code=True
         )
     else:
         tokenizer = transformers.AutoTokenizer.from_pretrained(

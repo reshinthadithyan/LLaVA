@@ -37,6 +37,7 @@ def build_vision_projector(config, delay_load=False, **kwargs):
         return nn.Linear(config.mm_hidden_size, config.hidden_size)
 
     mlp_gelu_match = re.match(r'^mlp(\d+)x_gelu$', projector_type)
+    print("Building vision projector....")
     if mlp_gelu_match:
         mlp_depth = int(mlp_gelu_match.group(1))
         modules = [nn.Linear(config.mm_hidden_size, config.hidden_size)]
